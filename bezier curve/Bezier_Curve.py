@@ -144,7 +144,7 @@ while running:
     path = []
 
     time_passed = 0
-    dt = 0.001 
+    dt = 0.01 
 
     while time_passed <= 1:
 
@@ -178,8 +178,6 @@ while running:
                     node.x_pos = x + x_vector * time_passed
                     node.y_pos = y + y_vector * time_passed
 
-                    time_passed += dt
-
                     node.display_node(screen)
 
                     p.draw.line(screen, (255, 0, 255), (x, y), (x + x_vector, y + y_vector))
@@ -189,6 +187,7 @@ while running:
                     if node.is_draw_node:
                         new_coordinate = [node.x_pos, node.y_pos]
                         path.append(new_coordinate)
+        time_passed += dt
     in_game_end = True
 
     screen.fill((255, 255, 255))
