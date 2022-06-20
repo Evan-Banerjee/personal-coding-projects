@@ -3,15 +3,19 @@ import copy
 
 class Cell:
     #row and col start with index 0
-    def __init__(self, row, col, sector):
+    def __init__(self, row, col, value):
         self.row = row
         self.col = col
+        self.value = value
 
         #sector takes the form "xy" where x is row and y is col
         self.sector = str((row // 3) + 1) + str((col // 3) + 1)
 
-        self.value = None
         self.pos_values = []
+    
+    #repr method used to print value when cell object is displayed
+    def __repr__(self):
+        return str(self.value)
 
     #for explicitly setting values
     def set_value(self, value):
@@ -35,4 +39,22 @@ class Cell:
 
 class Game_Grid:
     def __init__(self):
-        pass
+        self.current_game_grid = [[None] * 9] * 9
+        for i in range(9):
+            for j in range(9):
+                self.current_game_grid[i][j] = Cell(i, j, i)
+                print(f"value of current cell is {self.current_game_grid[i][j]}")
+                print(f"value of first cell is {self.current_game_grid[0][0]}")
+
+# test_grid = Game_Grid()
+# print(test_grid.current_game_grid)
+
+list1 = [[0] * 9] * 9
+
+for i in range(9):
+    for j in range(9):
+        list1[i][j] = j
+        print(f"current list element is {list1[i][j]}")
+        print(f"first list element is {list1[0][0]}")
+
+print(list1)
