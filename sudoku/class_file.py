@@ -3,7 +3,7 @@ import copy
 
 class Cell:
     #row and col start with index 0
-    def __init__(self, row, col, value):
+    def __init__(self, row, col, value=None):
         self.row = row
         self.col = col
         self.value = value
@@ -39,22 +39,10 @@ class Cell:
 
 class Game_Grid:
     def __init__(self):
-        self.current_game_grid = [[None] * 9] * 9
+        self.current_game_grid = [[None for x in range(9)] for y in range(9)]
         for i in range(9):
             for j in range(9):
-                self.current_game_grid[i][j] = Cell(i, j, i)
-                print(f"value of current cell is {self.current_game_grid[i][j]}")
-                print(f"value of first cell is {self.current_game_grid[0][0]}")
+                self.current_game_grid[i][j] = Cell(i, j)
 
-# test_grid = Game_Grid()
-# print(test_grid.current_game_grid)
-
-list1 = [[0] * 9] * 9
-
-for i in range(9):
-    for j in range(9):
-        list1[i][j] = j
-        print(f"current list element is {list1[i][j]}")
-        print(f"first list element is {list1[0][0]}")
-
-print(list1)
+test_grid = Game_Grid()
+print(test_grid.current_game_grid)
