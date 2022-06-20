@@ -1,4 +1,5 @@
 import pygame as p
+import copy
 
 class Cell:
     #row and col start with index 0
@@ -31,3 +32,7 @@ class Cell:
 
             #to make it easier we sort the list of possible values
             self.pos_values.sort()
+
+class Game_Grid:
+    def __init__(self):
+        pass
