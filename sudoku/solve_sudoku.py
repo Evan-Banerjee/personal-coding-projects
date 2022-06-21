@@ -15,6 +15,18 @@ in_input_phase = True
 in_solving_phase = False
 in_end_phase = False
 
+#takes in coordinates and returns index of square coordinates are in
+def coordinates_to_index(x_pos, y_pos):
+    col = (x_pos - 10) // 80
+    row = (y_pos - 10) // 80
+    return (row, col)
+
+#takes in the index of where a square is and returns the coordinates of the top left corner of the square
+def index_to_coordinates(row, col):
+    x_coordinate = col * 80 + 10
+    y_coordinate = row * 80 + 10
+    return (x_coordinate, y_coordinate)
+
 #game loop
 while True:
     #while in the phase where the user puts numbers into the grid
@@ -36,12 +48,15 @@ while True:
             #find row and col where user clicked
             if event.type == p.MOUSEBUTTONUP:
                 coordinates = p.mouse.get_pos()
-                col = (coordinates[0] - 10) // 80
-                row = (coordinates[1] - 10) // 80
+                index = coordinates_to_index(coordinates[0], coordinates[1])
+                row = index[0]
+                col = index[1]
+
+                new_coordinates = index_to_coordinates(row, col)
 
                 #test validity of row and col
-                rect_x_start = (col * 80) + 11
-                rect_y_start = (row * 80) + 11
+                rect_x_start = new_coordinates[0] + 1
+                rect_y_start = new_coordinates[1] + 1
 
                 #draw square where user clicked
                 coordinates_square = (rect_x_start, rect_y_start, 79, 79)
