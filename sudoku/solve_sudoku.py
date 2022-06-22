@@ -27,9 +27,22 @@ def index_to_coordinates(row, col):
     y_coordinate = row * 80 + 10
     return (x_coordinate, y_coordinate)
 
+#draws a square at the specified row and col with a specified color
+def draw_square(row, col, color):
+    new_coordinates = index_to_coordinates(row, col)
+
+    #test validity of row and col
+    rect_x_start = new_coordinates[0] + 1
+    rect_y_start = new_coordinates[1] + 1
+
+    #draw square where user clicked
+    coordinates_square = (rect_x_start, rect_y_start, 79, 79)
+    p.draw.rect(screen, color, p.Rect(coordinates_square))
+
 #game loop
 while True:
     #while in the phase where the user puts numbers into the grid
+    square_selected = ""
     while in_input_phase:
         for event in p.event.get():
             if event.type == p.QUIT:
@@ -47,19 +60,20 @@ while True:
 
             #find row and col where user clicked
             if event.type == p.MOUSEBUTTONUP:
+                
+                if square_selected:
+                    old_row = int(square_selected[0])
+                    old_col = int(square_selected[1])
+
+                    draw_square(old_row, old_col, WHITE)
+
                 coordinates = p.mouse.get_pos()
                 index = coordinates_to_index(coordinates[0], coordinates[1])
                 row = index[0]
                 col = index[1]
 
-                new_coordinates = index_to_coordinates(row, col)
+                draw_square(row, col, GREEN)
 
-                #test validity of row and col
-                rect_x_start = new_coordinates[0] + 1
-                rect_y_start = new_coordinates[1] + 1
-
-                #draw square where user clicked
-                coordinates_square = (rect_x_start, rect_y_start, 79, 79)
-                p.draw.rect(screen, GREEN, p.Rect(coordinates_square),)
+                square_selected = str(row) + str(col)
 
         p.display.update()
