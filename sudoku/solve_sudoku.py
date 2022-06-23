@@ -1,4 +1,5 @@
 import pygame as p
+import class_file
 
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
@@ -75,5 +76,9 @@ while True:
                 draw_square(row, col, GREEN)
 
                 square_selected = str(row) + str(col)
+
+            if square_selected and event.type == p.KEYDOWN:
+                key = event.unicode
+                print(key)
 
         p.display.update()
