@@ -37,7 +37,7 @@ class Cell:
             #to make it easier we sort the list of possible values
             self.pos_values.sort()
 
-class Game_Grid:
+class Board:
     def __init__(self):
         #makes the current game_grid, which is a 2d (9 by 9) array of None objects
         self.current_game_grid = [[None for x in range(9)] for y in range(9)]
@@ -47,5 +47,3 @@ class Game_Grid:
             for j in range(9):
                 self.current_game_grid[i][j] = Cell(i, j)
 
-test_grid = Game_Grid()
-print(test_grid.current_game_grid)
