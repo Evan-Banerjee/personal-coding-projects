@@ -69,6 +69,30 @@ def draw_grid():
         if (i % 3 == 0):
             p.draw.line(screen, BLACK, (10, i * 80 + 10), (730, i * 80 + 10), width=6)
 
+#find the possible values for cells based on the row they're in
+def update_values_with_row(board, row):
+    pass
+
+#find the possible values for cells based on the row they're in
+def update_values_with_col(board, col):
+    pass
+
+#find the possible values for cells based on the sector they're in
+def update_values_with_sector(board, sector):
+    pass
+
+#add the possible values for each cell to each cells possible values attribute
+def find_possible_cell_values(board):
+    for row in range(9):
+        update_values_with_row(board, row)
+
+    for col in range(9):
+        update_values_with_col(board, col)
+        
+    for cell_row in board.current_game_grid:
+        for cell in cell_row:
+            update_values_with_sector(board, cell.sector)
+
 #game loop
 board = Board()
 font = p.font.SysFont("arial", 80)
@@ -124,6 +148,7 @@ while True:
             if event.type == p.KEYDOWN and event.key == p.K_SPACE:
                 in_input_phase = False
                 in_solving_phase = True
+                
                 draw_cell_values()
 
                 p.display.update()
