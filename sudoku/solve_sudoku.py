@@ -108,7 +108,7 @@ while True:
                 square_selected = str(row) + str(col)
 
             #adds the user inputed value to the boards game_grid attribute
-            if square_selected and event.type == p.KEYDOWN:
+            if square_selected and event.type == p.KEYDOWN and event.key != p.K_SPACE:
                 screen.fill(WHITE)
 
                 key = event.unicode
@@ -124,6 +124,9 @@ while True:
             if event.type == p.KEYDOWN and event.key == p.K_SPACE:
                 in_input_phase = False
                 in_solving_phase = True
+                draw_cell_values()
+
+                p.display.update()
         
         draw_cell_values()
 
