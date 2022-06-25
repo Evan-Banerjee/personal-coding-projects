@@ -46,7 +46,7 @@ def draw_cell_values():
     for cell_row in board.current_game_grid:
         for cell in cell_row:
             if cell.value:
-                if cell.value[0].isdigit():
+                if cell.value[0].isdigit() and int(cell.value[0]) != 0:
                     number = font.render(cell.value, True, BLACK)
                     number_box = number.get_rect()
 
@@ -112,9 +112,6 @@ while True:
                 screen.fill(WHITE)
 
                 key = event.unicode
-
-                if event.type == p.K_BACKSPACE:
-                    key = None
                 
                 row = int(square_selected[0])
                 col = int(square_selected[1])
