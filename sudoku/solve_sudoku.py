@@ -118,7 +118,18 @@ while True:
                 board.current_game_grid[row][col].value = key
 
                 print("adding " + str(key) + " to a cell")
+
+                draw_cell_values()
+            
+            if event.type == p.KEYDOWN and event.key == p.K_SPACE:
+                in_input_phase = False
+                in_solving_phase = True
         
         draw_cell_values()
 
         p.display.update()
+    
+    while in_solving_phase:
+        for event in p.event.get():
+            if event.type == p.QUIT:
+                p.quit()
