@@ -58,6 +58,16 @@ def draw_cell_values():
                     number_box.center = (x_location , y_location)
 
                     screen.blit(number, number_box)
+def draw_grid():
+    #draw grid
+    for i in range(10):
+        p.draw.line(screen, BLACK, (i * 80 + 10, 10), (i * 80 + 10, 730))
+        if (i % 3 == 0):
+            p.draw.line(screen, BLACK, (i * 80 + 10, 10), (i * 80 + 10, 730), width=6)
+    for i in range(10):
+        p.draw.line(screen, BLACK, (10, i * 80 + 10), (730, i * 80 + 10))
+        if (i % 3 == 0):
+            p.draw.line(screen, BLACK, (10, i * 80 + 10), (730, i * 80 + 10), width=6)
 
 #game loop
 board = Board()
@@ -71,15 +81,7 @@ while True:
             if event.type == p.QUIT:
                 p.quit()
 
-            #draw grid
-            for i in range(10):
-                p.draw.line(screen, BLACK, (i * 80 + 10, 10), (i * 80 + 10, 730))
-                if (i % 3 == 0):
-                    p.draw.line(screen, BLACK, (i * 80 + 10, 10), (i * 80 + 10, 730), width=6)
-            for i in range(10):
-                p.draw.line(screen, BLACK, (10, i * 80 + 10), (730, i * 80 + 10))
-                if (i % 3 == 0):
-                    p.draw.line(screen, BLACK, (10, i * 80 + 10), (730, i * 80 + 10), width=6)
+            draw_grid()
             
             #make sure the selected square is always green
             if square_selected:
