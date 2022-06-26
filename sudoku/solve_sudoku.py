@@ -70,28 +70,47 @@ def draw_grid():
             p.draw.line(screen, BLACK, (10, i * 80 + 10), (730, i * 80 + 10), width=6)
 
 #find the possible values for cells based on the row they're in
-def update_values_with_row(board, row):
-    pass
+def find_values_with_row(board, row):
+    possible_values_for_row = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+    for i in range(9):
+        value = board.current_game_grid[row][i].value
+        if value in possible_values_for_row:
+            possible_values_for_row.remove(i)
+    return possible_values_for_row
 
 #find the possible values for cells based on the row they're in
-def update_values_with_col(board, col):
-    pass
+def find_values_with_col(board, col):
+    possible_values_for_col = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+    for i in range(9):
+        value = board.current_game_grid[i][col].value
+        if value in possible_values_for_col:
+            possible_values_for_col.remove(value)
+    return possible_values_for_col
 
 #find the possible values for cells based on the sector they're in
-def update_values_with_sector(board, sector):
-    pass
+def find_values_with_sector(board, sector):
+    possible_values_for_sector = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+    start_row = (int(sector[0]) - 1) * 3
+    start_col = (int(sector[1]) - 1) * 3
+
+    for i in range(start_row, start_row + 3):
+        for j in range(start_col, start_col + 3):
+            value = board.current_game_grid[i][j].value
+            if value in possible_values_for_sector:
+                possible_values_for_sector.remove()
+
 
 #add the possible values for each cell to each cells possible values attribute
 def find_possible_cell_values(board):
     for row in range(9):
-        update_values_with_row(board, row)
+        find_values_with_row(board, row)
 
     for col in range(9):
-        update_values_with_col(board, col)
+        find_values_with_col(board, col)
         
     for cell_row in board.current_game_grid:
         for cell in cell_row:
-            update_values_with_sector(board, cell.sector)
+            find_values_with_sector(board, cell.sector)
 
 #game loop
 board = Board()
@@ -148,10 +167,15 @@ while True:
             if event.type == p.KEYDOWN and event.key == p.K_SPACE:
                 in_input_phase = False
                 in_solving_phase = True
-                
+
                 draw_cell_values()
 
                 p.display.update()
+
+                for cell_row in board.current_game_grid:
+                    for cell in cell_row:
+                        if (not cell.value.isdigit()) or cell.value == 0:
+                            cell.value = None
         
         draw_cell_values()
 
