@@ -44,6 +44,7 @@ class Board:
         #makes the current game_grid, which is a 2d (9 by 9) array of None objects
         self.current_game_grid = [[None for x in range(9)] for y in range(9)]
         self.previous_game_grids = []
+        self.nexus_cell_log = []
         self.nexus_cell = None
 
         #populates the game_grid with Cell objects

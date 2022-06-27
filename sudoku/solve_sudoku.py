@@ -282,6 +282,7 @@ while True:
     num_solved = 0 #number of cells with a definite value
     remove_non_digit_values_and_0s(board)
     while in_solving_phase:
+        num_solved = 0
 
         for event in p.event.get():
             if event.type == p.QUIT:
@@ -297,7 +298,7 @@ while True:
                 if cell.value:
                     num_solved += 1
                 
-                if not cell.pos_values and not cell.value:
+                if len(cell.pos_values) == 0 and not cell.value:
                     current_game_state_faulty = True
                 elif len(cell.pos_values) == 1:
                     cell.value = cell.pos_values[0]
@@ -307,9 +308,11 @@ while True:
         if num_solved >= 81:
             in_solving_phase = False
             in_end_phase = True
+            print("we're in the endgame now")
+            
 
         #chooses value for cell with few solutions if no definite solution exists
-        if definite_value_found == False and not current_game_state_faulty:
+        if definite_value_found == False and not current_game_state_faulty and not in_end_phase:
             minimum_PV_length = 9
             nexus_cell_row = None
             nexus_cell_col = None
@@ -319,11 +322,14 @@ while True:
                         minimum_PV_length = len(cell.pos_values)
                         nexus_cell_row = cell.row
                         nexus_cell_col = cell.col
-            
-            board.nexus_cell = board.current_game_grid[nexus_cell_row][nexus_cell_col]
 
             print("archiving gamestate clone")
+            
+            board.nexus_cell = board.current_game_grid[nexus_cell_row][nexus_cell_col]
+            board.nexus_cell_log.append((nexus_cell_row, nexus_cell_col))
+
             archived_game_grid = copy.deepcopy(board.current_game_grid)
+
             board.previous_game_grids.append(archived_game_grid)
 
             board.nexus_cell.value = board.nexus_cell.pos_values[0]
@@ -331,8 +337,18 @@ while True:
             definite_value_found = True
 
         #restores previous gamestate with one possible value removed if current grid is faulty
-        if current_game_state_faulty:
+        if current_game_state_faulty and not in_end_phase:
+            print(f"nexus log is: {board.nexus_cell_log}")
+            print(f"previous game grids length is {len(board.previous_game_grids)}")
             board.current_game_grid = board.previous_game_grids.pop()
+
+            nexus_cell_coordinates = board.nexus_cell_log.pop()
+
+            nexus_cell_row = nexus_cell_coordinates[0]
+            nexus_cell_row = nexus_cell_coordinates[0]
+
+            board.nexus_cell = board.current_game_grid[nexus_cell_row][nexus_cell_col]
+
             del board.nexus_cell.pos_values[0]
 
         draw_grid()
