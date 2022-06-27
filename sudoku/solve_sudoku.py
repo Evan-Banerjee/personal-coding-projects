@@ -353,49 +353,46 @@ while True:
                         nexus_cell_row = cell.row
                         nexus_cell_col = cell.col
 
-            print("archiving gamestate clone")
-
             archived_game_grid = copy.deepcopy(board.current_game_grid)
 
             board.previous_game_grids.append(archived_game_grid)
 
             board.nexus_cell_log.append((nexus_cell_row, nexus_cell_col))
             
-            board.nexus_cell = board.current_game_grid[nexus_cell_row][nexus_cell_col]
+            nexus_cell_value = board.current_game_grid[nexus_cell_row][nexus_cell_col].pos_values[0]
+            
+            board.current_game_grid[nexus_cell_row][nexus_cell_col].value = nexus_cell_value
 
-            board.nexus_cell.value = board.nexus_cell.pos_values[0]
+            print(f"""\nadding nexus cell coordinates {nexus_cell_row}-{nexus_cell_col} to nexus_cell_log
+             and giving cell {nexus_cell_row}-{nexus_cell_col} a value of 
+             {nexus_cell_value}\n""")
 
             update_solved_cells(board)
+            find_possible_cell_values(board)
 
             definite_value_found = True
 
         #restores previous gamestate with one possible value removed if current grid is faulty
         if current_game_state_faulty and not in_end_phase:
-            print(f"nexus log is: {board.nexus_cell_log}")
-            row = board.nexus_cell_log[-1][0]
-            col = board.nexus_cell_log[-1][1]
-            print(f"""value of cell associated with last in nexus log is 
-            {board.previous_game_grids[-1][row][col].value}""")
-            print(f"previous game grids length is {len(board.previous_game_grids)}")
-            board.current_game_grid = board.previous_game_grids.pop()
 
             nexus_cell_coordinates = board.nexus_cell_log.pop()
 
             nexus_cell_row = nexus_cell_coordinates[0]
             nexus_cell_col = nexus_cell_coordinates[1]
 
+            faulty_value = board.current_game_grid[nexus_cell_row][nexus_cell_col].value
+
+            board.current_game_grid = board.previous_game_grids.pop()
+
             board.nexus_cell = board.current_game_grid[nexus_cell_row][nexus_cell_col]
 
-            print(f"removing {board.nexus_cell.pos_values[0]} from nexus log")
-
-            board.nexus_cell.blacklisted_values.append(board.nexus_cell.pos_values[0])
-
-            board.nexus_cell.value = None
-
-            del board.nexus_cell.pos_values[0]
+            board.nexus_cell.blacklisted_values.append(faulty_value)
 
             current_game_state_faulty = False
 
+            find_possible_cell_values
+
+        screen.fill(WHITE)
         draw_grid()
         draw_cell_values(board)
         p.display.update()
@@ -406,6 +403,7 @@ while True:
     p.display.update()
 
     while in_end_phase:
+        print("in end phase")
 
         for event in p.event.get():
             if event.type == p.QUIT:
