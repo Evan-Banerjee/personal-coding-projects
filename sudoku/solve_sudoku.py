@@ -36,6 +36,9 @@ def reset_pos_values(board):
         for j in range(9):
             if board.current_game_grid[i][j].value == None:
                 board.current_game_grid[i][j].pos_values = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+                for k in range(1, 10):
+                    if k in board.current_game_grid[i][j].blacklisted_values:
+                        board.current_game_grid[i][j].pos_values.remove(k)
             else:
                 board.current_game_grid[i][j].pos_values = []
 
@@ -312,7 +315,7 @@ while True:
             
 
         #chooses value for cell with few solutions if no definite solution exists
-        if definite_value_found == False and not current_game_state_faulty and not in_end_phase:
+        if definite_value_found == False and (not current_game_state_faulty) and (not in_end_phase):
             minimum_PV_length = 9
             nexus_cell_row = None
             nexus_cell_col = None
@@ -328,30 +331,40 @@ while True:
             archived_game_grid = copy.deepcopy(board.current_game_grid)
 
             board.previous_game_grids.append(archived_game_grid)
+
+            board.nexus_cell_log.append((nexus_cell_row, nexus_cell_col))
             
             board.nexus_cell = board.current_game_grid[nexus_cell_row][nexus_cell_col]
 
-            board.nexus_cell_log.append((nexus_cell_row, nexus_cell_col))
-
             board.nexus_cell.value = board.nexus_cell.pos_values[0]
+
+            update_solved_cells(board)
 
             definite_value_found = True
 
         #restores previous gamestate with one possible value removed if current grid is faulty
         if current_game_state_faulty and not in_end_phase:
             print(f"nexus log is: {board.nexus_cell_log}")
-            print(f"value of cell associated with last in nexus log is {board.nexus_cell_log[-1]}")
+            row = board.nexus_cell_log[-1][0]
+            col = board.nexus_cell_log[-1][1]
+            print(f"""value of cell associated with last in nexus log is 
+            {board.previous_game_grids[-1][row][col].value}""")
             print(f"previous game grids length is {len(board.previous_game_grids)}")
             board.current_game_grid = board.previous_game_grids.pop()
 
             nexus_cell_coordinates = board.nexus_cell_log.pop()
 
             nexus_cell_row = nexus_cell_coordinates[0]
-            nexus_cell_row = nexus_cell_coordinates[0]
+            nexus_cell_col = nexus_cell_coordinates[1]
 
             board.nexus_cell = board.current_game_grid[nexus_cell_row][nexus_cell_col]
 
             print(f"removing {board.nexus_cell.pos_values[0]} from nexus log")
+
+            board.nexus_cell.blacklisted_values.append(board.nexus_cell.pos_values[0])
+
+            board.nexus_cell.value = None
+
             del board.nexus_cell.pos_values[0]
 
             current_game_state_faulty = False
@@ -360,7 +373,13 @@ while True:
         draw_cell_values(board)
         p.display.update()
     
+    screen.fill(WHITE)
+    draw_grid()
+    draw_cell_values(board)
+    p.display.update()
+    
     while in_end_phase:
+
         for event in p.event.get():
             if event.type == p.QUIT:
                 p.quit()

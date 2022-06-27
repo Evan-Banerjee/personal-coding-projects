@@ -7,6 +7,8 @@ class Cell:
         self.row = row
         self.col = col
         self.value = value
+        
+        self.blacklisted_values = []
 
         self.computer_generated = False
 
