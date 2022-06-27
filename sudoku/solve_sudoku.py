@@ -6,6 +6,9 @@ from class_file import *
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 GREEN = (0, 255, 0)
+YELLOW = (255, 255, 0)
+PINK = (255, 190, 200)
+
 
 #pygame setup
 p.init()
@@ -84,6 +87,10 @@ def draw_cell_values(board):
                 y_location = coordinates[1] + 39
 
                 number_box.center = (x_location , y_location)
+
+                if cell.computer_generated:
+                    draw_square(cell.row, cell.col, PINK)
+                    print("pink")
 
                 screen.blit(number, number_box)
 def draw_grid():
@@ -332,6 +339,7 @@ while True:
                     current_game_state_faulty = True
                 elif len(cell.pos_values) == 1:
                     cell.value = cell.pos_values[0]
+                    cell.computer_generated = True
                     cell.pos_values = []
                     definite_value_found = True
         
@@ -362,6 +370,8 @@ while True:
             nexus_cell_value = board.current_game_grid[nexus_cell_row][nexus_cell_col].pos_values[0]
             
             board.current_game_grid[nexus_cell_row][nexus_cell_col].value = nexus_cell_value
+
+            board.current_game_grid[nexus_cell_row][nexus_cell_col].computer_generated = True
 
             print(f"""\nadding nexus cell coordinates {nexus_cell_row}-{nexus_cell_col} to nexus_cell_log
              and giving cell {nexus_cell_row}-{nexus_cell_col} a value of 
@@ -397,13 +407,12 @@ while True:
         draw_cell_values(board)
         p.display.update()
     
-    screen.fill(WHITE)
+    screen.fill(YELLOW)
     draw_grid()
     draw_cell_values(board)
     p.display.update()
 
     while in_end_phase:
-        print("in end phase")
 
         for event in p.event.get():
             if event.type == p.QUIT:
