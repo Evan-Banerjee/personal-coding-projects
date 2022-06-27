@@ -50,29 +50,28 @@ def draw_square(row, col, color):
     coordinates_square = (rect_x_start + 2, rect_y_start + 2, 75, 75)
     p.draw.rect(screen, color, p.Rect(coordinates_square))
 
-def remove_non_digit_values(board):
+def remove_non_digit_values_and_0s(board):
     for cell_row in board.current_game_grid:
         for cell in cell_row:
-            if cell.value and ((not cell.value.isdigit()) or cell.value == 0):
+            if cell.value and ((not str(cell.value).isdigit()) or cell.value == 0):
                 cell.value = None
 
 #draws every cell's value on the board where the cell is located
-def draw_cell_values():
+def draw_cell_values(board):
     for cell_row in board.current_game_grid:
         for cell in cell_row:
             if cell.value:
-                if cell.value[0].isdigit() and int(cell.value[0]) != 0:
-                    number = font.render(cell.value, True, BLACK)
-                    number_box = number.get_rect()
+                number = font.render(str(cell.value), True, BLACK)
+                number_box = number.get_rect()
 
-                    coordinates = index_to_coordinates(cell.row, cell.col)
+                coordinates = index_to_coordinates(cell.row, cell.col)
 
-                    x_location = coordinates[0] + 39
-                    y_location = coordinates[1] + 39
+                x_location = coordinates[0] + 39
+                y_location = coordinates[1] + 39
 
-                    number_box.center = (x_location , y_location)
+                number_box.center = (x_location , y_location)
 
-                    screen.blit(number, number_box)
+                screen.blit(number, number_box)
 def draw_grid():
     #draw grid
     for i in range(10):
@@ -93,7 +92,7 @@ def find_values_with_row(board, row):
             value = int(value)
             pos_values_for_row.remove(value)
 
-    for i in range(9):  #iterates through the values to be in possible values
+    for i in range(1, 10):  #iterates through the values to be in possible values
         for j in range(9): #iterate through the cells
             current_cell_pv = board.current_game_grid[row][j].pos_values #possible values for current cell
             if (i not in pos_values_for_row) and (i in current_cell_pv):
@@ -108,7 +107,7 @@ def find_values_with_col(board, col):
             value = int(value)
             pos_values_for_col.remove(value)
 
-    for i in range(9):  #iterates through the values to be in possible values
+    for i in range(1, 10):  #iterates through the values to be in possible values
         for j in range(9): #iterate through the cells
             current_cell_pv = board.current_game_grid[j][col].pos_values #possible values for current cell
             if i not in pos_values_for_col and (i in current_cell_pv):
@@ -128,7 +127,7 @@ def find_values_with_sector(board, sector):
                 value = int(value)
                 pos_values_for_sector.remove(value)
 
-    for i in range(9): #iterate through the values to be in possible values
+    for i in range(1, 10): #iterate through the values to be in possible values
         for j in range(start_row, start_row + 3): #iterate through rows of sector
             for k in range(start_col, start_col + 3): #iterate through columns of sector
                 current_cell_pv = board.current_game_grid[j][k].pos_values #possible values for current cell
@@ -161,6 +160,7 @@ while True:
             if event.type == p.QUIT:
                 p.quit()
 
+            remove_non_digit_values_and_0s(board)
             draw_grid()
             
             #make sure the selected square is always green
@@ -197,34 +197,44 @@ while True:
                 col = int(square_selected[1])
                 board.current_game_grid[row][col].value = key
 
-                draw_cell_values()
+                draw_cell_values(board)
             
             if event.type == p.KEYDOWN and event.key == p.K_SPACE:
                 in_input_phase = False
                 in_solving_phase = True
 
-                draw_cell_values()
+                draw_cell_values(board)
 
                 p.display.update()
 
-                remove_non_digit_values(board)
-
-            if event.type == p.KEYDOWN and event.key == p.K_s:
-                remove_non_digit_values(board)
-                find_possible_cell_values(board)
-                for cell_row in board.current_game_grid:
-                    for cell in cell_row:
-                        print(f"""the possible values for cell: {cell.row}-{cell.col} are  
-                        {board.current_game_grid[cell.row][cell.col].pos_values}""")
+                remove_non_digit_values_and_0s(board)
             
         
-        draw_cell_values()
+        draw_cell_values(board)
 
         p.display.update()
     
     while in_solving_phase:
+        # print("start solving phase loop")
+        remove_non_digit_values_and_0s(board)
+
         for event in p.event.get():
             if event.type == p.QUIT:
                 p.quit()
+            
+            if event.type == p.KEYDOWN and event.key == p.K_d:
+                print(board.current_game_grid[1][8].value)
         
+        find_possible_cell_values(board)
+
+        for cell_row in board.current_game_grid:
+            for cell in cell_row:
+                if len(cell.pos_values) == 1:
+                    cell.value = cell.pos_values[0]
+                    cell.pos_values = []
+        draw_grid()
+        draw_cell_values(board)
+        p.display.update()
+        
+
             
