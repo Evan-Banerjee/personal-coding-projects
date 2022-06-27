@@ -29,6 +29,15 @@ def index_to_coordinates(row, col):
     y_coordinate = row * 80 + 10
     return [x_coordinate, y_coordinate]
 
+#make every cell have every digit as a possible value, or none if the cell already has a value
+def reset_pos_values(board):
+    for i in range (9):
+        for j in range(9):
+            if board.current_game_grid[i][j].value == None:
+                board.current_game_grid[i][j].pos_values = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+            else:
+                board.current_game_grid[i][j].pos_values = []
+
 #draws a square at the specified row and col with a specified color
 def draw_square(row, col, color):
     new_coordinates = index_to_coordinates(row, col)
@@ -40,6 +49,12 @@ def draw_square(row, col, color):
     #draw square where user clicked
     coordinates_square = (rect_x_start + 2, rect_y_start + 2, 75, 75)
     p.draw.rect(screen, color, p.Rect(coordinates_square))
+
+def remove_non_digit_values(board):
+    for cell_row in board.current_game_grid:
+        for cell in cell_row:
+            if cell.value and ((not cell.value.isdigit()) or cell.value == 0):
+                cell.value = None
 
 #draws every cell's value on the board where the cell is located
 def draw_cell_values():
@@ -71,37 +86,59 @@ def draw_grid():
 
 #find the possible values for cells based on the row they're in
 def find_values_with_row(board, row):
-    possible_values_for_row = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+    pos_values_for_row = [1, 2, 3, 4, 5, 6, 7, 8, 9]
     for i in range(9):
         value = board.current_game_grid[row][i].value
-        if value in possible_values_for_row:
-            possible_values_for_row.remove(i)
-    return possible_values_for_row
+        if value and int(value) in pos_values_for_row:
+            value = int(value)
+            pos_values_for_row.remove(value)
+
+    for i in range(9):  #iterates through the values to be in possible values
+        for j in range(9): #iterate through the cells
+            current_cell_pv = board.current_game_grid[row][j].pos_values #possible values for current cell
+            if (i not in pos_values_for_row) and (i in current_cell_pv):
+                board.current_game_grid[row][j].pos_values.remove(i)
 
 #find the possible values for cells based on the row they're in
 def find_values_with_col(board, col):
-    possible_values_for_col = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+    pos_values_for_col = [1, 2, 3, 4, 5, 6, 7, 8, 9]
     for i in range(9):
         value = board.current_game_grid[i][col].value
-        if value in possible_values_for_col:
-            possible_values_for_col.remove(value)
-    return possible_values_for_col
+        if value and (int(value) in pos_values_for_col):
+            value = int(value)
+            pos_values_for_col.remove(value)
+
+    for i in range(9):  #iterates through the values to be in possible values
+        for j in range(9): #iterate through the cells
+            current_cell_pv = board.current_game_grid[j][col].pos_values #possible values for current cell
+            if i not in pos_values_for_col and (i in current_cell_pv):
+                board.current_game_grid[j][col].pos_values.remove(i)
 
 #find the possible values for cells based on the sector they're in
 def find_values_with_sector(board, sector):
-    possible_values_for_sector = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+    pos_values_for_sector = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+
     start_row = (int(sector[0]) - 1) * 3
     start_col = (int(sector[1]) - 1) * 3
 
     for i in range(start_row, start_row + 3):
         for j in range(start_col, start_col + 3):
             value = board.current_game_grid[i][j].value
-            if value in possible_values_for_sector:
-                possible_values_for_sector.remove()
+            if value and (int(value) in pos_values_for_sector):
+                value = int(value)
+                pos_values_for_sector.remove(value)
 
+    for i in range(9): #iterate through the values to be in possible values
+        for j in range(start_row, start_row + 3): #iterate through rows of sector
+            for k in range(start_col, start_col + 3): #iterate through columns of sector
+                current_cell_pv = board.current_game_grid[j][k].pos_values #possible values for current cell
+                if i not in pos_values_for_sector and (i in current_cell_pv):
+                    board.current_game_grid[j][k].pos_values.remove(i)
 
 #add the possible values for each cell to each cells possible values attribute
 def find_possible_cell_values(board):
+    reset_pos_values(board)
+
     for row in range(9):
         find_values_with_row(board, row)
 
@@ -160,8 +197,6 @@ while True:
                 col = int(square_selected[1])
                 board.current_game_grid[row][col].value = key
 
-                print("adding " + str(key) + " to a cell")
-
                 draw_cell_values()
             
             if event.type == p.KEYDOWN and event.key == p.K_SPACE:
@@ -172,10 +207,16 @@ while True:
 
                 p.display.update()
 
+                remove_non_digit_values(board)
+
+            if event.type == p.KEYDOWN and event.key == p.K_s:
+                remove_non_digit_values(board)
+                find_possible_cell_values(board)
                 for cell_row in board.current_game_grid:
                     for cell in cell_row:
-                        if (not cell.value.isdigit()) or cell.value == 0:
-                            cell.value = None
+                        print(f"""the possible values for cell: {cell.row}-{cell.col} are  
+                        {board.current_game_grid[cell.row][cell.col].pos_values}""")
+            
         
         draw_cell_values()
 
@@ -185,3 +226,5 @@ while True:
         for event in p.event.get():
             if event.type == p.QUIT:
                 p.quit()
+        
+            
