@@ -324,13 +324,14 @@ while True:
                         nexus_cell_col = cell.col
 
             print("archiving gamestate clone")
-            
-            board.nexus_cell = board.current_game_grid[nexus_cell_row][nexus_cell_col]
-            board.nexus_cell_log.append((nexus_cell_row, nexus_cell_col))
 
             archived_game_grid = copy.deepcopy(board.current_game_grid)
 
             board.previous_game_grids.append(archived_game_grid)
+            
+            board.nexus_cell = board.current_game_grid[nexus_cell_row][nexus_cell_col]
+
+            board.nexus_cell_log.append((nexus_cell_row, nexus_cell_col))
 
             board.nexus_cell.value = board.nexus_cell.pos_values[0]
 
@@ -339,6 +340,7 @@ while True:
         #restores previous gamestate with one possible value removed if current grid is faulty
         if current_game_state_faulty and not in_end_phase:
             print(f"nexus log is: {board.nexus_cell_log}")
+            print(f"value of cell associated with last in nexus log is {board.nexus_cell_log[-1]}")
             print(f"previous game grids length is {len(board.previous_game_grids)}")
             board.current_game_grid = board.previous_game_grids.pop()
 
@@ -349,7 +351,10 @@ while True:
 
             board.nexus_cell = board.current_game_grid[nexus_cell_row][nexus_cell_col]
 
+            print(f"removing {board.nexus_cell.pos_values[0]} from nexus log")
             del board.nexus_cell.pos_values[0]
+
+            current_game_state_faulty = False
 
         draw_grid()
         draw_cell_values(board)
