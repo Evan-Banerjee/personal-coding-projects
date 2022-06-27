@@ -90,7 +90,6 @@ def draw_cell_values(board):
 
                 if cell.computer_generated:
                     draw_square(cell.row, cell.col, PINK)
-                    print("pink")
 
                 screen.blit(number, number_box)
 def draw_grid():
@@ -103,6 +102,60 @@ def draw_grid():
         p.draw.line(screen, BLACK, (10, i * 80 + 10), (730, i * 80 + 10))
         if (i % 3 == 0):
             p.draw.line(screen, BLACK, (10, i * 80 + 10), (730, i * 80 + 10), width=6)
+
+def find_cell_values_row(board, cell):
+    pos_values_for_row = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+    for num in cell.blacklisted_values:
+        pos_values_for_row.remove(num)
+
+    for i in range(9):
+        value = board.current_game_grid[cell.row][i].value
+        if value in pos_values_for_row:
+            pos_values_for_row.remove(value)
+    
+    for num in cell.pos_values:
+        if num not in pos_values_for_row:
+            cell.pos_values.remove(num)
+
+    
+
+def find_cell_values_col(board, cell):
+    pos_values_for_col = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+    for num in cell.blacklisted_values:
+        pos_values_for_col.remove(num)
+        
+    for i in range(9):
+        value = board.current_game_grid[i][cell.col].value
+        if value in pos_values_for_col:
+            pos_values_for_col.remove(value)
+    
+    for num in cell.pos_values:
+        if num not in pos_values_for_col:
+            cell.pos_values.remove(num)
+
+
+
+def find_cell_values_sector(board, cell):
+    pos_values_for_sector = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+    for num in cell.blacklisted_values:
+        pos_values_for_sector.remove(num)
+        
+    row = (cell.row // 3) * 3
+    col = (cell.col // 3) * 3
+    for i in range(row, row + 3):
+        for j in range(col, col + 3):
+            value = board.current_game_grid[i][j].value
+            if value in pos_values_for_sector:
+                pos_values_for_sector.remove(value)
+    
+    for num in cell.pos_values:
+        if num not in pos_values_for_sector:
+            cell.pos_values.remove(num)
+
+def find_pos_values_for_cell(board, cell):
+    find_cell_values_row(board, cell)
+    find_cell_values_col(board, cell)
+    find_cell_values_sector(board, cell)
 
 #find the possible values for cells based on the row they're in
 def find_values_with_row(board, row):
@@ -168,6 +221,13 @@ def find_possible_cell_values(board):
     for cell_row in board.current_game_grid:
         for cell in cell_row:
             find_values_with_sector(board, cell.sector)
+
+def find_possible_cell_values_v2(board):
+    for cell_row in board.current_game_grid:
+            for cell in cell_row:
+                if cell.value == None:
+                    cell.pos_values = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+                find_pos_values_for_cell(board, cell)
 
 #game loop
 board = Board()
@@ -313,11 +373,19 @@ while True:
         draw_cell_values(board)
 
         p.display.update()
+    
+
+    remove_non_digit_values_and_0s(board)
+
+    for cell_row in board.current_game_grid:
+        for cell in cell_row:
+            if cell.value:
+                cell.value = int(cell.value)
 
     definite_value_found = True #becomes false if no definite value can be found
     current_game_state_faulty = False
     num_solved = 0 #number of cells with a definite value
-    remove_non_digit_values_and_0s(board)
+    
     while in_solving_phase:
         num_solved = 0
 
@@ -325,13 +393,16 @@ while True:
             if event.type == p.QUIT:
                 p.quit()
         
-        find_possible_cell_values(board)
+        # find_possible_cell_values(board)
+
+        find_possible_cell_values_v2(board)
 
         definite_value_found = False
 
         #fills out values with definite solution
         for cell_row in board.current_game_grid:
             for cell in cell_row:
+                find_pos_values_for_cell(board, cell)
                 if cell.value:
                     num_solved += 1
                 
@@ -356,6 +427,7 @@ while True:
             nexus_cell_col = None
             for cell_row in board.current_game_grid:
                 for cell in cell_row:
+                    find_pos_values_for_cell(board, cell)
                     if len(cell.pos_values) <= minimum_PV_length and cell.value == None:
                         minimum_PV_length = len(cell.pos_values)
                         nexus_cell_row = cell.row
@@ -378,7 +450,9 @@ while True:
              {nexus_cell_value}\n""")
 
             update_solved_cells(board)
-            find_possible_cell_values(board)
+
+            # find_possible_cell_values(board)
+            find_possible_cell_values_v2(board)
 
             definite_value_found = True
 
@@ -397,10 +471,14 @@ while True:
             board.nexus_cell = board.current_game_grid[nexus_cell_row][nexus_cell_col]
 
             board.nexus_cell.blacklisted_values.append(faulty_value)
+            
+            print(f"""\nnexus cell {nexus_cell_row}-{nexus_cell_col} had a value of {faulty_value} 
+            which was wrong. blacklisting {faulty_value} from cell {nexus_cell_row}-{nexus_cell_col}\n""")
 
             current_game_state_faulty = False
 
-            find_possible_cell_values
+            # find_possible_cell_values(board)
+            find_possible_cell_values_v2(board)
 
         screen.fill(WHITE)
         draw_grid()
