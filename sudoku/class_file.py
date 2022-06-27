@@ -8,6 +8,8 @@ class Cell:
         self.col = col
         self.value = value
 
+        self.computer_generated = False
+
         #sector takes the form "xy" where x is row and y is col
         self.sector = str((row // 3) + 1) + str((col // 3) + 1)
 
@@ -41,6 +43,8 @@ class Board:
     def __init__(self):
         #makes the current game_grid, which is a 2d (9 by 9) array of None objects
         self.current_game_grid = [[None for x in range(9)] for y in range(9)]
+        self.previous_game_grids = []
+        self.nexus_cell = None
 
         #populates the game_grid with Cell objects
         for i in range(9):
