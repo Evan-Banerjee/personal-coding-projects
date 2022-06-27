@@ -167,12 +167,35 @@ board = Board()
 font = p.font.SysFont("arial", 80)
 while True:
     #while in the phase where the user puts numbers into the grid
-    square_selected = ""
+    square_selected = "00"
     while in_input_phase:
         for event in p.event.get():
             
             if event.type == p.QUIT:
                 p.quit()
+            
+            if event.type == p.KEYDOWN and event.key == p.K_s:
+                print(board.current_game_grid[0][0].value)
+
+            if event.type == p.KEYDOWN and event.key == p.K_LEFT and int(square_selected[1]) > 0:
+                square_selected = square_selected[0] + str(int(square_selected[1]) - 1)
+                draw_grid()
+                draw_cell_values(board)
+
+            if event.type == p.KEYDOWN and event.key == p.K_RIGHT and int(square_selected[1]) < 8:
+                square_selected = square_selected[0] + str(int(square_selected[1]) + 1)
+                draw_grid()
+                draw_cell_values(board)
+
+            if event.type == p.KEYDOWN and event.key == p.K_UP and int(square_selected[0]) > 0:
+                square_selected = str(int(square_selected[0]) - 1) + square_selected[1]
+                draw_grid()
+                draw_cell_values(board)
+
+            if event.type == p.KEYDOWN and event.key == p.K_DOWN and int(square_selected[0]) < 8:
+                square_selected = str(int(square_selected[0]) + 1) + square_selected[1]
+                draw_grid()
+                draw_cell_values(board)
 
             if event.type == p.KEYDOWN and event.key == p.K_t:
                 print("initiate testing")
@@ -234,6 +257,7 @@ while True:
                 row = int(square_selected[0])
                 col = int(square_selected[1])
                 draw_square(row, col, GREEN)
+                draw_cell_values(board)
 
             #find row and col where user clicked
             if event.type == p.MOUSEBUTTONUP:
@@ -254,14 +278,17 @@ while True:
                 square_selected = str(row) + str(col)
 
             #adds the user inputed value to the boards game_grid attribute
-            if square_selected and event.type == p.KEYDOWN and event.key != p.K_SPACE:
+            if (square_selected and event.type == p.KEYDOWN and not 
+            event.key == p.K_SPACE):
                 screen.fill(WHITE)
 
                 key = event.unicode
                 
                 row = int(square_selected[0])
                 col = int(square_selected[1])
-                board.current_game_grid[row][col].value = key
+
+                if not (event.key in [p.K_LEFT, p.K_RIGHT, p.K_DOWN, p.K_UP]):
+                    board.current_game_grid[row][col].value = key
 
                 draw_cell_values(board)
             
@@ -377,7 +404,7 @@ while True:
     draw_grid()
     draw_cell_values(board)
     p.display.update()
-    
+
     while in_end_phase:
 
         for event in p.event.get():
