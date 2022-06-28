@@ -2,6 +2,7 @@ from numpy import square
 import pygame as p
 from pyparsing import with_attribute
 from class_file import *
+import time
 
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
@@ -59,26 +60,33 @@ def check_for_errors(board):
             value = board.current_game_grid[row][col].value
             if value in values_per_row:
                 values_per_row.remove(value)
-            else:
+            elif value != None:
+                print(f"""row error in row {row}. problem square: {row}-{col}.
+the value that was already in the row is {value}""")
                 return True
     for col in range(9):
         values_per_col = [1, 2, 3, 4, 5, 6, 7, 8, 9]
         for row in range(9):
             value = board.current_game_grid[row][col].value
             if value in values_per_col:
-                values_per_row.remove(value)
-            else:
+                values_per_col.remove(value)
+            elif value != None:
+                print(f"""col error in col {col}. problem square: {row}-{col}.
+the value that was already in the row is {value}""")
                 return True
     for sector_row in range(3):
         for sector_col in range(3):
             values_per_sector = [1, 2, 3, 4, 5, 6, 7, 8, 9]
-            
+
             for row_iterator in range(3):
                 for col_iterator in range(3):
-                    value = board.current_game_grid[(3 * sector_row) + row_iterator][(3 * sector_col) + col_iterator]
+                    value = board.current_game_grid[(3 * sector_row) + row_iterator][(3 * sector_col) + col_iterator].value
                     if value in values_per_sector:
                         values_per_sector.remove(value)
-                    else:
+                    elif value != None:
+                        print(f"""sector error in sector {sector_row}{sector_col}. problem square: 
+{sector_row + row_iterator}-{sector_col + col_iterator}.
+the value that was already in the row is {value}""")
                         return True
     return False
     
@@ -147,7 +155,6 @@ def find_cell_values_row(board, cell):
     for num in cell.pos_values:
         if num not in pos_values_for_row:
             cell.pos_values.remove(num)
-
     
 
 def find_cell_values_col(board, cell):
@@ -260,6 +267,12 @@ def find_possible_cell_values_v2(board):
                     cell.pos_values = [1, 2, 3, 4, 5, 6, 7, 8, 9]
                 find_pos_values_for_cell(board, cell)
 
+def update_screen(board):
+    screen.fill(WHITE)
+    draw_grid()
+    draw_cell_values(board)
+    p.display.update()
+
 #game loop
 board = Board()
 font = p.font.SysFont("arial", 80)
@@ -301,47 +314,47 @@ while True:
                 square_selected = None
 
                 #row 0
-                values = [None, 6, 9, None, None, None, None, 7, 8]
+                values = [None, None, None, None, None, None, None, None, None]
                 for i in range(9):
                     board.current_game_grid[0][i].value = values[i]
                 
                 #row_1
-                values = [5, None, None, None, 4, None, None, None, None]
+                values = [None, None, None, 7, None, None, None, 5, None]
                 for i in range(9):
                     board.current_game_grid[1][i].value = values[i]
                 
                 #row_2
-                values = [None, None, None, None, None, 7, 6, None, 5]
+                values = [6, None, None, 8, 9, None, None, None, 3]
                 for i in range(9):
                     board.current_game_grid[2][i].value = values[i]
                 
                 #row_3
-                values = [9, 4, 2, 7, None, 3, 1, 5, 6]
+                values = [5, None, None, None, None, None, None, None, None]
                 for i in range(9):
                     board.current_game_grid[3][i].value = values[i]
                 
                 #row_4
-                values = [7, None, 6, 5, None, 2, 8, 4, 3]
+                values = [None, None, None, None, None, 4, 1, None, None]
                 for i in range(9):
                     board.current_game_grid[4][i].value = values[i]
                 
                 #row_5
-                values = [None, None, None, 1, None, 4, None, 9, None]
+                values = [None, None, 4, None, None, 3, None, 6, 8]
                 for i in range(9):
                     board.current_game_grid[5][i].value = values[i]
                 
                 #row_6
-                values = [None, None, None, None, None, 6, None, 8, None]
+                values = [None, 6, None, None, 3, None, None, None, 9]
                 for i in range(9):
                     board.current_game_grid[6][i].value = values[i]
                 
                 #row_7
-                values = [6, None, 1, None, 3, 9, None, None, None]
+                values = [8, None, 5, None, None, 2, 7, None, None]
                 for i in range(9):
                     board.current_game_grid[7][i].value = values[i]
                 
                 #row_8
-                values = [None, 5, 4, None, 7, None, 3, None, None]
+                values = [None, None, 1, None, None, None, 6, None, 5]
                 for i in range(9):
                     board.current_game_grid[8][i].value = values[i]
 
@@ -426,24 +439,56 @@ while True:
         
         # find_possible_cell_values(board)
 
-        find_possible_cell_values_v2(board)
+        # find_possible_cell_values_v2(board)
 
         definite_value_found = False
 
         #fills out values with definite solution
         for cell_row in board.current_game_grid:
             for cell in cell_row:
+                if cell.value == None:
+                    cell.pos_values = [1, 2, 3, 4, 5, 6, 7, 8, 9]
                 find_pos_values_for_cell(board, cell)
+#------------------------------------------------------------------------
+                for i in range(9):
+                    val = board.current_game_grid[cell.row][i].value
+                    if val in cell.pos_values:
+                        cell.pos_values.remove(val)
+
+                for i in range(9):
+                    val = board.current_game_grid[i][cell.col].value
+                    if val in cell.pos_values:
+                        cell.pos_values.remove(val)
+                
+                sector_row = int(cell.sector[0]) * 3 - 3
+                sector_col = int(cell.sector[1]) * 3 - 3
+                for i in range(sector_row, sector_row + 3):
+                    for j in range(sector_col, sector_col + 3):
+                        val = board.current_game_grid[i][j].value
+                        if val in cell.pos_values:
+                            cell.pos_values.remove(val)
+
+#------------------------------------------------------------------------
+
                 if cell.value:
                     num_solved += 1
                 
                 if len(cell.pos_values) == 0 and not cell.value:
                     current_game_state_faulty = True
+
                 elif len(cell.pos_values) == 1:
                     cell.value = cell.pos_values[0]
                     cell.computer_generated = True
                     cell.pos_values = []
                     definite_value_found = True
+                    update_screen(board)
+                    if check_for_errors(board):
+                        print("error was in guaranteed choosing code\n\n")
+                        while True:
+                            for event in p.event.get():
+                                if event.type == p.QUIT:
+                                    p.quit()
+
         
         if num_solved >= 81:
             in_solving_phase = False
@@ -456,9 +501,34 @@ while True:
             minimum_PV_length = 9
             nexus_cell_row = None
             nexus_cell_col = None
+
             for cell_row in board.current_game_grid:
                 for cell in cell_row:
-                    find_pos_values_for_cell(board, cell)
+                    find_cell_values_row(board, cell)
+                    find_cell_values_col(board, cell)
+                    find_cell_values_sector(board, cell)
+#------------------------------------------------------------------------
+                    for i in range(9):
+                        val = board.current_game_grid[cell.row][i].value
+                        if val in cell.pos_values:
+                            cell.pos_values.remove(val)
+
+                    for i in range(9):
+                        val = board.current_game_grid[i][cell.col].value
+                        if val in cell.pos_values:
+                            cell.pos_values.remove(val)
+                    
+                    sector_row = int(cell.sector[0]) * 3 - 3
+                    sector_col = int(cell.sector[1]) * 3 - 3
+                    for i in range(sector_row, sector_row + 3):
+                        for j in range(sector_col, sector_col + 3):
+                            val = board.current_game_grid[i][j].value
+                            if val in cell.pos_values:
+                                cell.pos_values.remove(val)
+
+#------------------------------------------------------------------------
+
+
                     if len(cell.pos_values) <= minimum_PV_length and cell.value == None:
                         minimum_PV_length = len(cell.pos_values)
                         nexus_cell_row = cell.row
@@ -469,10 +539,27 @@ while True:
             board.previous_game_grids.append(archived_game_grid)
 
             board.nexus_cell_log.append((nexus_cell_row, nexus_cell_col))
+
+            print(f"""\npossible values for current nexus cell {nexus_cell_row}-{nexus_cell_col} are
+            {board.current_game_grid[nexus_cell_row][nexus_cell_col].pos_values}\n""")
             
             nexus_cell_value = board.current_game_grid[nexus_cell_row][nexus_cell_col].pos_values[0]
+
+            print(f"guessing {nexus_cell_value} for cell {nexus_cell_row}-{nexus_cell_col}")
             
             board.current_game_grid[nexus_cell_row][nexus_cell_col].value = nexus_cell_value
+
+            board.current_game_grid[nexus_cell_row][nexus_cell_col].computer_generated = True
+
+
+            update_screen(board)
+
+            if check_for_errors(board):
+                print("error was in guessing code\n\n")
+                while True:
+                    for event in p.event.get():
+                        if event.type == p.QUIT:
+                            p.quit()
 
             board.current_game_grid[nexus_cell_row][nexus_cell_col].computer_generated = True
 
