@@ -52,6 +52,37 @@ def update_solved_cells(board):
             if cell.value:
                 cell.pos_values = []
 
+def check_for_errors(board):
+    for row in range(9):
+        values_per_row = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+        for col in range(9):
+            value = board.current_game_grid[row][col].value
+            if value in values_per_row:
+                values_per_row.remove(value)
+            else:
+                return True
+    for col in range(9):
+        values_per_col = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+        for row in range(9):
+            value = board.current_game_grid[row][col].value
+            if value in values_per_col:
+                values_per_row.remove(value)
+            else:
+                return True
+    for sector_row in range(3):
+        for sector_col in range(3):
+            values_per_sector = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+            
+            for row_iterator in range(3):
+                for col_iterator in range(3):
+                    value = board.current_game_grid[(3 * sector_row) + row_iterator][(3 * sector_col) + col_iterator]
+                    if value in values_per_sector:
+                        values_per_sector.remove(value)
+                    else:
+                        return True
+    return False
+    
+
 #draws a square at the specified row and col with a specified color
 def draw_square(row, col, color):
     new_coordinates = index_to_coordinates(row, col)
